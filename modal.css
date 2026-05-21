@@ -1,0 +1,47 @@
+/* ===================================
+   POPUP MODAL
+   =================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 40, 24, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease);
+}
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-box {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 44px 40px;
+  width: 90%;
+  max-width: 480px;
+  position: relative;
+  transform: translateY(40px) scale(0.95);
+  transition: all var(--dur-slow) var(--ease-spring);
+  box-shadow: var(--shadow-lg);
+}
+.modal-overlay.active .modal-box {
+  transform: translateY(0) scale(1);
+}
+.modal-close {
+  position: absolute;
+  top: 16px; right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--text-muted);
+  transition: color var(--dur-fast);
+  padding: 4px;
+}
+.modal-close:hover {
+  color: var(--forest);
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Triven Ayurveda</title>
+  <link rel="stylesheet" href="Triven.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #f4f9f4 0%, #e8f5e9 100%);
+    }
+    .auth-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 450px;
+      border: 1px solid rgba(74, 124, 89, 0.1);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .auth-logo {
+      width: 60px;
+      margin-bottom: 15px;
+    }
+    .auth-title {
+      font-size: 1.8rem;
+      color: var(--forest-dark);
+      margin-bottom: 10px;
+    }
+    .auth-subtitle {
+      color: #666;
+      font-size: 0.95rem;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--forest-dark);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--forest);
+      box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+    }
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      font-size: 0.9rem;
+    }
+    .forgot-link {
+      color: var(--forest);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--forest);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .auth-btn:hover {
+      background: var(--forest-dark);
+    }
+    .auth-footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 0.95rem;
+      color: #666;
+    }
+    .auth-footer a {
+      color: var(--forest);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .alert-error {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #f87171;
+    }
+    .alert-success {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #4ade80;
+    }
+    
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 20px 10px;
+      }
+      .auth-card {
+        padding: 30px 20px;
+        border-radius: 16px;
+      }
+      .auth-title {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="index.html"><img src="assets/Trivenlogo.png" alt="Triven Logo" class="auth-logo" /></a>
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to your Triven Ayurveda account.</p>
+      </div>
+      
+      <div id="loginAlert" class="alert alert-error"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" required placeholder="Enter your email" />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required placeholder="Enter your password" />
+        </div>
+        <div class="form-options">
+          <label style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="rememberMe"> Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot Password?</a>
+        </div>
+        <button type="submit" class="auth-btn" id="loginBtn">Sign In</button>
+      </form>
+      
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — Triven Ayurveda</title>
+  <link rel="stylesheet" href="Triven.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #f4f9f4 0%, #e8f5e9 100%);
+    }
+    .auth-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 600px; /* Wider for grid layout */
+      border: 1px solid rgba(74, 124, 89, 0.1);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .auth-logo {
+      width: 60px;
+      margin-bottom: 15px;
+    }
+    .auth-title {
+      font-size: 1.8rem;
+      color: var(--forest-dark);
+      margin-bottom: 10px;
+    }
+    .auth-subtitle {
+      color: #666;
+      font-size: 0.95rem;
+    }
+    .form-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .form-row .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--forest-dark);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--forest);
+      box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+    }
+    .section-title {
+      font-size: 1.1rem;
+      color: var(--forest);
+      margin: 25px 0 15px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--forest);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 20px;
+    }
+    .auth-btn:hover {
+      background: var(--forest-dark);
+    }
+    .auth-footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 0.95rem;
+      color: #666;
+    }
+    .auth-footer a {
+      color: var(--forest);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .alert-error {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #f87171;
+    }
+    .alert-success {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #4ade80;
+    }
+    /* Responsive */
+    @media (max-width: 600px) {
+      .form-row {
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 20px 10px;
+      }
+      .auth-card {
+        padding: 30px 20px;
+        border-radius: 16px;
+      }
+      .auth-title {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="index.html"><img src="assets/Trivenlogo.png" alt="Triven Logo" class="auth-logo" /></a>
+        <h1 class="auth-title">Create an Account</h1>
+        <p class="auth-subtitle">Join Triven Ayurveda for a healthier life.</p>
+      </div>
+      
+      <div id="registerAlert" class="alert"></div>
+
+      <form id="registerForm">
+        <div class="section-title">Personal Details</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" required placeholder="John" />
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" required placeholder="Doe" />
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" required placeholder="john@example.com" />
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number (Optional)</label>
+            <input type="tel" id="phone" placeholder="10-digit number" pattern="[6-9][0-9]{9}" title="Valid Indian Phone Number" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password *</label>
+          <input type="password" id="password" required placeholder="Min 8 chars, 1 uppercase, 1 lowercase, 1 number" />
+        </div>
+
+        <div class="section-title">Address Details (Optional)</div>
+        <div class="form-group">
+          <label for="address">Full Address</label>
+          <textarea id="address" placeholder="House/Flat No, Street Name, Area"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="landmark">Landmark</label>
+          <input type="text" id="landmark" placeholder="Near Apollo Hospital" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" id="city" placeholder="E.g. Mumbai" />
+          </div>
+          <div class="form-group">
+            <label for="state">State</label>
+            <input type="text" id="state" placeholder="E.g. Maharashtra" />
+          </div>
+          <div class="form-group">
+            <label for="pincode">Pincode</label>
+            <input type="text" id="pincode" placeholder="6 digits" pattern="[0-9]{6}" title="6 digit pincode" />
+          </div>
+        </div>
+
+        <button type="submit" class="auth-btn" id="registerBtn">Create Account</button>
+      </form>
+      
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

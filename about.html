@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Story — Triven Ayurveda</title>
+  <meta name="description" content="Learn about Triven Ayurveda — our story, mission, and commitment to authentic Ayurvedic wellness rooted in 5,000 years of tradition." />
+  <link rel="stylesheet" href="Triven.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ===== OUR STORY PAGE ===== */
+
+    /* Dark green hero */
+    .story-hero {
+      background: #1e4d2b;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 0 50px;
+      text-align: center;
+    }
+    .story-hero h1 {
+      font-family: 'Outfit', sans-serif !important;
+      font-size: clamp(2.4rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      background: none !important;
+      -webkit-text-fill-color: unset !important;
+    }
+    .story-hero h1 .white { color: #fff; }
+    .story-hero h1 .green { color: #95d5b2; }
+    .story-hero p {
+      color: rgba(255,255,255,0.72);
+      font-size: 1rem;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* Split story section */
+    .story-split {
+      background: var(--cream);
+      padding: 80px 0;
+    }
+    .story-split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: center;
+    }
+    .story-text h2 {
+      font-family: 'Outfit', sans-serif !important;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      color: #1a1a1a;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      background: none !important;
+      -webkit-text-fill-color: unset !important;
+    }
+    .story-text h2 .accent {
+      color: #2d6a4f;
+      -webkit-text-fill-color: #2d6a4f !important;
+    }
+    .story-text p {
+      color: #555;
+      font-size: 0.98rem;
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+    .story-text p strong {
+      color: #2d6a4f;
+    }
+    .story-text .story-btns {
+      margin-top: 32px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .story-text .btn-green {
+      background: #2d5a27;
+      color: #fff;
+      border-radius: 99px;
+      padding: 13px 28px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .story-text .btn-green:hover { background: #1f3f1b; }
+    .story-text .btn-white {
+      background: #fff;
+      color: #2d5a27;
+      border-radius: 99px;
+      padding: 13px 28px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .story-text .btn-white:hover { border-color: #2d5a27; }
+
+    /* Story image */
+    .story-img-wrap {
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.1);
+    }
+    .story-img-wrap img {
+      width: 100%;
+      height: 480px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .story-img-wrap:hover img { transform: scale(1.03); }
+
+    /* Values grid */
+    .story-values {
+      background: #fff;
+      padding: 80px 0;
+    }
+    .story-values-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .story-values-header h2 {
+      font-family: 'Outfit', sans-serif !important;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 800;
+      color: #1a1a1a;
+      background: none !important;
+      -webkit-text-fill-color: unset !important;
+      margin-bottom: 12px;
+    }
+    .story-values-header p {
+      color: #666;
+      max-width: 520px;
+      margin: 0 auto;
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .value-card {
+      background: var(--cream);
+      border-radius: 20px;
+      padding: 36px 24px;
+      text-align: center;
+      border: 1px solid rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .value-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    }
+    .value-icon {
+      width: 64px;
+      height: 64px;
+      background: #e5ecd6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.5rem;
+      color: #2d6a4f;
+    }
+    .value-card h3 {
+      font-family: 'Outfit', sans-serif !important;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+      background: none !important;
+      -webkit-text-fill-color: unset !important;
+    }
+    .value-card p {
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    /* Stats strip */
+    .story-stats {
+      background: #1e4d2b;
+      padding: 56px 0;
+    }
+    .story-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: center;
+    }
+    .story-stat h3 {
+      font-family: 'Outfit', sans-serif !important;
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #95d5b2;
+      margin-bottom: 6px;
+      background: none !important;
+      -webkit-text-fill-color: #95d5b2 !important;
+    }
+    .story-stat p {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .story-hero { min-height: auto; padding: 120px 0 60px; }
+      .story-split-grid { grid-template-columns: 1fr; gap: 40px; }
+      .story-text { text-align: center; }
+      .story-text .story-btns { justify-content: center; }
+      .values-grid { grid-template-columns: repeat(2, 1fr); }
+      .story-stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .story-img-wrap img { height: 350px; }
+    }
+    @media (max-width: 600px) {
+      .story-hero h1 { font-size: 2.2rem; }
+      .values-grid { grid-template-columns: 1fr; }
+      .story-stats-grid { grid-template-columns: 1fr; gap: 32px; }
+    .story-img-wrap img { height: 280px; }
+    }
+
+    /* VAIDYAS SECTION STYLES */
+    .vaidyas-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+    .vaidya-card {
+      background: #fff;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      transition: transform 0.3s var(--ease);
+    }
+    .vaidya-card:hover { transform: translateY(-10px); }
+    .vaidya-img-wrap {
+      height: 400px;
+      overflow: hidden;
+    }
+    .vaidya-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s var(--ease);
+    }
+    .vaidya-card:hover .vaidya-img-wrap img { transform: scale(1.05); }
+    .vaidya-label {
+      padding: 24px;
+      text-align: center;
+      background: #fff;
+    }
+    .vaidya-label h3 {
+      font-size: 1.4rem;
+      color: #0d2818;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    @media (max-width: 992px) {
+      .vaidyas-grid { grid-template-columns: repeat(2, 1fr); }
+      .vaidya-img-wrap { height: 320px; }
+    }
+    @media (max-width: 600px) {
+      .vaidyas-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="scroll-progress"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <img src="assets/Trivenlogo.png" alt="Triven Ayurveda Logo" />
+        <div class="logo-text">
+          <span class="logo-name">Triven Ayurveda</span>
+          <span class="logo-tagline">Ancient · Pure · Trusted</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Shop All</a></li>
+        <li><a href="categories.html">Categories</a></li>
+        <li><a href="about.html" class="active">Our Story</a></li>
+      </ul>
+      <div class="nav-tools">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search remedies..." />
+        </div>
+        <a href="#" class="nav-icon" aria-label="Account"><i class="far fa-user"></i></a>
+        <a href="#" class="nav-icon cart-icon" aria-label="Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count">0</span>
+        </a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="story-hero">
+    <div class="container">
+      <h1><span class="white">Our</span> <span class="green">Story</span></h1>
+      <p>Bringing you the purest form of Ayurveda, preserving ancient wisdom for modern lifestyles.</p>
+    </div>
+  </section>
+
+  <!-- STORY SPLIT SECTION -->
+  <section class="story-split">
+    <div class="container story-split-grid">
+      <div class="story-text reveal-left">
+        <h2>Rooted in <span class="accent">5,000 Years of Tradition</span></h2>
+        <p>Founded by a lineage of Ayurvedic physicians in Kerala, Triven Ayurveda bridges the gap between ancient herbal wisdom and modern scientific validation. We don't just sell supplements; we formulate holistic remedies designed to treat the root cause, not just the symptoms.</p>
+        <p>Every product begins its journey in our partner organic farms across the Western Ghats. We strictly adhere to <strong>Vrikshayurveda</strong> (traditional organic farming) principles — no synthetic pesticides, no chemical fertilisers, only nature's own methods.</p>
+        <p>Our name "Triven" symbolises the sacred confluence — where ancient tradition, modern science, and pure nature meet to create healing that truly works.</p>
+        <div class="story-btns">
+          <a href="products.html" class="btn-green">Explore Products <i class="fas fa-arrow-right"></i></a>
+          <a href="contact.html" class="btn-white">Free Consultation</a>
+        </div>
+      </div>
+      <div class="story-img-wrap reveal-right">
+        <img src="assets/Ourstory.png" alt="Triven Ayurveda Story" />
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUES -->
+  <section class="story-values">
+    <div class="container">
+      <div class="story-values-header reveal">
+        <h2>The Triven Difference</h2>
+        <p>We blend 5,000 years of Ayurvedic science with modern quality standards to bring you wellness you can trust.</p>
+      </div>
+      <div class="values-grid">
+        <div class="value-card reveal">
+          <div class="value-icon"><i class="fas fa-leaf"></i></div>
+          <h3>100% Natural</h3>
+          <p>Every ingredient is ethically sourced, free from chemicals, preservatives, and artificial additives.</p>
+        </div>
+        <div class="value-card reveal">
+          <div class="value-icon"><i class="fas fa-flask"></i></div>
+          <h3>Lab Tested</h3>
+          <p>All products undergo rigorous third-party testing to ensure purity, potency, and safety.</p>
+        </div>
+        <div class="value-card reveal">
+          <div class="value-icon"><i class="fas fa-om"></i></div>
+          <h3>Authentic Formulas</h3>
+          <p>Rooted in classical Ayurvedic texts, our formulations are crafted by experienced Vaidyas.</p>
+        </div>
+        <div class="value-card reveal">
+          <div class="value-icon"><i class="fas fa-recycle"></i></div>
+          <h3>Eco-Friendly</h3>
+          <p>Sustainable packaging and responsible sourcing — good for you and the planet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- VAIDYAS SECTION -->
+  <section class="vaidyas-section" style="padding: 80px 0; background: #fdfcf8;">
+    <div class="container">
+      <div class="section-header reveal" style="text-align: center; margin-bottom: 60px;">
+        <h2 style="font-size: clamp(2rem, 4vw, 2.8rem); color: #0d2818; margin-bottom: 16px;">Meet Our <span style="color: #4a7c59;">Vaidyas</span></h2>
+        <p style="max-width: 700px; margin: 0 auto; color: #666; font-size: 1rem; line-height: 1.7;">Our formulations are backed by decades of clinical experience and deeply rooted in the ancient science of healing.</p>
+      </div>
+      <div class="vaidyas-grid">
+        <!-- <div class="vaidya-card reveal">
+          <div class="vaidya-img-wrap">
+            <img src="assets/Productimg1.png" alt="Dr. Anjali Sharma" />
+          </div>
+          <div class="vaidya-label">
+            <h3>Dr. Anjali Sharma</h3>
+          </div>
+        </div> -->
+        <div class="vaidya-card reveal">
+          <div class="vaidya-img-wrap">
+            <img src="assets/Doctor1.png" alt="Dr. Rajesh Menon" />
+          </div>
+          <div class="vaidya-label">
+            <!-- <h3>Dr. Rajesh Menon</h3> -->
+          </div>
+        </div>
+        <div class="vaidya-card reveal">
+          <div class="vaidya-img-wrap">
+            <img src="assets/Doctor2.png" alt="Dr. Priya Desai" />
+          </div>
+          <div class="vaidya-label">
+            <!-- <h3>Dr. Priya Desai</h3> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <img src="assets/Trivenlogo.png" alt="Triven Ayurveda" />
+        <span class="footer-brand-name">Triven Ayurveda</span>
+        <p>Rooted in 5,000 years of tradition. Crafted for the modern world.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="footer-links-row">
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="testimonials.html">Testimonials</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Products</h4>
+          <ul>
+            <li><a href="products.html">Ayushira</a></li>
+            <li><a href="products.html">Migraine Kit</a></li>
+            <li><a href="products.html">Manasvini</a></li>
+            <li><a href="products.html">Sirohara</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-newsletter">
+        <h4>Newsletter</h4>
+        <p>Get wellness tips and exclusive offers.</p>
+        <div class="newsletter-form">
+          <input type="email" placeholder="Enter your email" />
+          <button class="btn btn-gold btn-sm">Subscribe</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom container">
+      <p>© 2025 Triven Ayurveda. All rights reserved. Made with <i class="fas fa-heart"></i> for wellness.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#" class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></a>
+
+
+  <script src="config.js"></script>
+  <script src="Triven.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    const callBarDoc = document.querySelector('.call-bar-doctor');
+    const doctors = ['assets/Doctor1.png', 'assets/Doctor2.png'];
+    let idx = 0;
+    setInterval(() => {
+      if (!callBarDoc) return;
+      idx = (idx + 1) % doctors.length;
+      callBarDoc.style.opacity = '0';
+      setTimeout(() => { callBarDoc.src = doctors[idx]; callBarDoc.style.opacity = '1'; }, 400);
+    }, 3000);
+  </script>
+</body>
+</html>

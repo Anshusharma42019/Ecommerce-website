@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Health Categories - Triven Ayurveda</title>
+  <meta name="description" content="Shop authentic Ayurvedic remedies by health category — Immunity, Digestion, Skin & Hair, Sleep & Stress, Vitality, Women's Health.">
+  <link rel="stylesheet" href="Triven.css" />
+  <link rel="stylesheet" href="products.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* ===== CATEGORIES PAGE STYLES ===== */
+    .cat-hero {
+      background: #1e4d2b;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 0 50px;
+      text-align: center;
+    }
+    .cat-hero h1 {
+      font-family: 'Outfit', sans-serif !important;
+      font-size: clamp(2.4rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      background: none !important;
+      -webkit-text-fill-color: unset !important;
+    }
+    .cat-hero h1 .white { color: #fff; }
+    .cat-hero h1 .green { color: #95d5b2; }
+    .cat-hero p {
+      color: rgba(255,255,255,0.7);
+      font-size: 1rem;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* Intro text below hero */
+    .cat-intro {
+      background: var(--cream);
+      padding: 56px 0 40px;
+      text-align: center;
+    }
+    .cat-intro p {
+      color: #444;
+      font-size: 1rem;
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.75;
+    }
+
+    /* Image category cards grid */
+    .cat-grid {
+      background: var(--cream);
+      padding: 16px 0 80px;
+    }
+    .cat-grid .container {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+    }
+    .cat-img-card {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      height: 220px;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .cat-img-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .cat-img-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .cat-img-card:hover img {
+      transform: scale(1.06);
+    }
+    /* Dark overlay */
+    .cat-img-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+    }
+    /* Category icon + label */
+    .cat-card-body {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+    }
+    .cat-card-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--white);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--forest-light);
+      font-size: 1.3rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    .cat-card-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.2px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .cat-grid .container { grid-template-columns: repeat(3, 1fr); }
+      .split-layout { grid-template-columns: 1fr !important; gap: 40px !important; text-align: center; }
+      .guide-text ul { text-align: left; max-width: 400px; margin: 0 auto 32px !important; }
+      .cat-hero { min-height: auto; padding: 120px 0 60px; }
+      .cat-hero h1 { font-size: 2.5rem; }
+    }
+    @media (max-width: 600px) {
+      .cat-grid .container { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .cat-img-card { height: 160px; }
+      .cat-card-body { padding: 12px; }
+      .cat-card-name { font-size: 0.9rem; }
+    }
+    @media (max-width: 400px) {
+      .cat-grid .container { grid-template-columns: 1fr; }
+      .cat-img-card { height: 200px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- LOADER -->
+  <div class="loader" id="page-loader">
+    <div class="loader-logo"><img src="assets/Trivenlogo.png" alt="Loading" /></div>
+    <span class="loader-brand">Triven Ayurveda</span>
+    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  </div>
+  <div id="scroll-progress"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <img src="assets/Trivenlogo.png" alt="Triven Ayurveda Logo" />
+        <div class="logo-text">
+          <span class="logo-name">Triven Ayurveda</span>
+          <span class="logo-tagline">Ancient · Pure · Trusted</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Shop All</a></li>
+        <li><a href="categories.html" class="active">Categories</a></li>
+        <li><a href="about.html">Our Story</a></li>
+      </ul>
+      <div class="nav-tools">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search remedies..." />
+        </div>
+        <a href="#" class="nav-icon" aria-label="Account"><i class="far fa-user"></i></a>
+        <a href="#" class="nav-icon cart-icon" aria-label="Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count">0</span>
+        </a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="cat-hero">
+    <div class="container">
+      <h1><span class="white">Health</span> <span class="green">Categories</span></h1>
+      <p>Find the perfect natural remedy tailored to your specific wellness needs by exploring our targeted categories.</p>
+    </div>
+  </section>
+
+  <!-- INTRO TEXT -->
+  <div class="cat-intro">
+    <div class="container">
+      <p>According to Ayurveda, every individual has a unique constitution. Browse our specialized collections below, formulated with ethically harvested botanicals to restore your specific mind-body balance.</p>
+    </div>
+  </div>
+
+  <!-- CATEGORY IMAGE CARDS -->
+  <div class="cat-grid">
+    <div class="container" id="catGrid">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    const FALLBACK_IMAGES = [
+      'assets/productimg2.png', 'assets/productimgimg4.png', 'assets/productimg5.png',
+      'assets/productimg3.png', 'assets/Productimg1.png', 'assets/homepage2.png'
+    ];
+    const FALLBACK_ICONS = [
+      'fa-shield-alt', 'fa-utensils', 'fa-star', 'fa-moon', 'fa-heartbeat', 'fa-venus'
+    ];
+
+    async function loadCategories() {
+      const grid = document.getElementById('catGrid');
+      try {
+        const res = await fetch(`${ENV.PRODUCTS_API}/categories`);
+        const data = await res.json();
+        const cats = res.ok && Array.isArray(data.data) ? data.data.filter(c => c.isActive) : [];
+
+        if (cats.length === 0) throw new Error('empty');
+
+        grid.innerHTML = cats.map((cat, i) => {
+          const img = cat.image?.url
+            ? (cat.image.url.startsWith('http') ? cat.image.url : `${ENV.PRODUCTS_API.replace('/api/v1','')}${cat.image.url}`)
+            : FALLBACK_IMAGES[i % FALLBACK_IMAGES.length];
+          const icon = FALLBACK_ICONS[i % FALLBACK_ICONS.length];
+          return `
+            <a href="products.html?filter=${cat.slug}#products" class="cat-img-card">
+              <img src="${img}" alt="${cat.name}" />
+              <div class="cat-card-body">
+                <div class="cat-card-icon"><i class="fas ${icon}"></i></div>
+                <span class="cat-card-name">${cat.name}</span>
+              </div>
+            </a>`;
+        }).join('');
+      } catch {
+        // Fallback to static cards if API unavailable
+        grid.innerHTML = `
+          <a href="products.html?filter=migraine#products" class="cat-img-card">
+            <img src="assets/productimg2.png" alt="Migraine & Headache" />
+            <div class="cat-card-body"><div class="cat-card-icon"><i class="fas fa-shield-alt"></i></div><span class="cat-card-name">Migraine &amp; Headache</span></div>
+          </a>
+          <a href="products.html?filter=stress#products" class="cat-img-card">
+            <img src="assets/productimgimg4.png" alt="Stress & Sleep" />
+            <div class="cat-card-body"><div class="cat-card-icon"><i class="fas fa-moon"></i></div><span class="cat-card-name">Stress &amp; Sleep</span></div>
+          </a>
+          <a href="products.html?filter=hair#products" class="cat-img-card">
+            <img src="assets/productimg5.png" alt="Hair & Scalp" />
+            <div class="cat-card-body"><div class="cat-card-icon"><i class="fas fa-star"></i></div><span class="cat-card-name">Hair &amp; Scalp</span></div>
+          </a>
+          <a href="products.html?filter=kit#products" class="cat-img-card">
+            <img src="assets/productimg3.png" alt="Wellness Kits" />
+            <div class="cat-card-body"><div class="cat-card-icon"><i class="fas fa-heartbeat"></i></div><span class="cat-card-name">Wellness Kits</span></div>
+          </a>`;
+      }
+    }
+    loadCategories();
+  </script>
+
+  <!-- BALANCE GUIDE SECTION -->
+  <section class="balance-guide" style="padding: 100px 0; background: #fff;">
+    <div class="container">
+      <div class="split-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
+        <div class="guide-image reveal-left">
+          <img src="assets/Categories.png" alt="Ayurvedic Rituals" style="width: 100%; border-radius: 30px; box-shadow: var(--shadow-lg);" />
+        </div>
+        <div class="guide-text reveal-right">
+          <p class="section-tag">Ayurvedic Wisdom</p>
+          <h2 style="font-size: 2.8rem; color: var(--forest); margin-bottom: 24px;">Finding Your <span style="color: var(--gold);">Perfect Balance</span></h2>
+          <p style="margin-bottom: 20px; color: #555; line-height: 1.8;">Ayurveda isn't just about medicine; it's about understanding your body's unique language. Our categories are carefully curated to address specific imbalances in your Doshas.</p>
+          <ul style="list-style: none; margin-bottom: 32px;">
+            <li style="display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start;">
+              <i class="fas fa-check-circle" style="color: var(--sage); margin-top: 5px;"></i>
+              <span><strong>Personalized Care:</strong> Remedies tailored for your specific body type.</span>
+            </li>
+            <li style="display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start;">
+              <i class="fas fa-check-circle" style="color: var(--sage); margin-top: 5px;"></i>
+              <span><strong>Root Cause Healing:</strong> We treat the source, not just the symptom.</span>
+            </li>
+            <li style="display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start;">
+              <i class="fas fa-check-circle" style="color: var(--sage); margin-top: 5px;"></i>
+              <span><strong>Pure & Potent:</strong> High-potency extracts for faster results.</span>
+            </li>
+          </ul>
+          <a href="about.html" class="btn btn-primary">Our Story <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONSULTATION CTA -->
+  <section class="consult-banner" style="padding: 80px 0; background: var(--grad-forest); color: #fff; text-align: center; position: relative; overflow: hidden;">
+    <div class="container" style="position: relative; z-index: 2;">
+      <h2 style="font-size: 2.5rem; color: #fff; margin-bottom: 16px;">Still Unsure?</h2>
+      <p style="max-width: 600px; margin: 0 auto 32px; color: rgba(255,255,255,0.8); font-size: 1.1rem;">Take our quick Ayurvedic assessment or book a free 15-minute video call with our certified Vaidyas to find the right remedy for you.</p>
+      <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+        <a href="#" class="btn btn-gold">Free Consultation</a>
+        <a href="#" class="btn btn-outline-light">Take Dosha Quiz</a>
+      </div>
+    </div>
+    <i class="fas fa-om" style="position: absolute; right: -50px; bottom: -50px; font-size: 15rem; color: rgba(255,255,255,0.03);"></i>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <img src="assets/Trivenlogo.png" alt="Triven Ayurveda" />
+          <div class="logo-text">
+            <span class="logo-name" style="color:var(--white);">Triven Ayurveda</span>
+            <span class="logo-tagline" style="color:rgba(255,255,255,0.7);">Ancient · Pure · Trusted</span>
+          </div>
+        </div>
+        <p style="color:rgba(255,255,255,0.7);margin-top:16px;font-size:0.9rem;">Reviving the 5000-year-old science of life for modern wellness.</p>
+        <div class="social-links" style="margin-top:20px;">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">Our Story</a>
+        <a href="testimonials.html">Reviews</a>
+      </div>
+      <div class="footer-contact">
+        <h4>Contact Us</h4>
+        <p><i class="fas fa-phone-alt" style="color:var(--gold-light);"></i> +91 73095 23829</p>
+        <p><i class="fas fa-envelope" style="color:var(--gold-light);"></i> care@triven.com</p>
+        <p><i class="fas fa-map-marker-alt" style="color:var(--gold-light);"></i> Kerala, India</p>
+      </div>
+      <div class="footer-newsletter">
+        <h4>Newsletter</h4>
+        <p>Get wellness tips &amp; exclusive offers.</p>
+        <div class="newsletter-form">
+          <input type="email" placeholder="Enter your email" />
+          <button class="btn btn-gold btn-sm">Subscribe</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom container">
+      <p>© 2025 Triven Ayurveda. All rights reserved. Made with <i class="fas fa-heart"></i> for wellness.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#" class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></a>
+
+
+  <script src="config.js"></script>
+  <script src="Triven.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    if (document.getElementById('page-loader')) document.getElementById('page-loader').classList.add('hide');
+    const callBarDoc = document.querySelector('.call-bar-doctor');
+    const doctors = ['assets/Doctor1.png', 'assets/Doctor2.png'];
+    let idx = 0;
+    setInterval(() => {
+      if (!callBarDoc) return;
+      idx = (idx + 1) % doctors.length;
+      callBarDoc.style.opacity = '0';
+      setTimeout(() => { callBarDoc.src = doctors[idx]; callBarDoc.style.opacity = '1'; }, 400);
+    }, 3000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Download QR Codes — Triven Ayurveda</title>
+  <style>
+    body { font-family: sans-serif; background: #faf7f2; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 32px; }
+    h1 { font-size: 1.4rem; color: #0d2818; margin-bottom: 0; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 600px; width: 100%; }
+    .card { background: #fff; border-radius: 16px; padding: 24px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .card img { width: 160px; height: 160px; border: 1px solid #eee; border-radius: 8px; }
+    .card h3 { margin: 0; font-size: 1rem; color: #0d2818; }
+    .card a {
+      display: inline-block;
+      background: #0d2818;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .card a:hover { background: #1a3d2b; }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <h1>Download Product QR Codes</h1>
+  <p style="color:#6b7d6e;margin:0;">Right-click the QR image and save, or click Download.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Ayushira</h3>
+      <img id="qr1" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://www.trivenayurveda.com/ayushira.html" alt="Ayushira QR" crossorigin="anonymous" />
+      <a href="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://www.trivenayurveda.com/ayushira.html" download="QR-Ayushira.png" target="_blank">⬇ Download</a>
+    </div>
+    <div class="card">
+      <h3>Migraine Kit</h3>
+      <img id="qr2" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://www.trivenayurveda.com/migraine-kit.html" alt="Migraine Kit QR" crossorigin="anonymous" />
+      <a href="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://www.trivenayurveda.com/migraine-kit.html" download="QR-MigraineKit.png" target="_blank">⬇ Download</a>
+    </div>
+    <div class="card">
+      <h3>Manasvini</h3>
+      <img id="qr3" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://www.trivenayurveda.com/manasvini.html" alt="Manasvini QR" crossorigin="anonymous" />
+      <a href="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://www.trivenayurveda.com/manasvini.html" download="QR-Manasvini.png" target="_blank">⬇ Download</a>
+    </div>
+    <div class="card">
+      <h3>Sirohara</h3>
+      <img id="qr4" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://www.trivenayurveda.com/sirohara.html" alt="Sirohara QR" crossorigin="anonymous" />
+      <a href="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://www.trivenayurveda.com/sirohara.html" download="QR-Sirohara.png" target="_blank">⬇ Download</a>
+    </div>
+  </div>
+</body>
+</html>
