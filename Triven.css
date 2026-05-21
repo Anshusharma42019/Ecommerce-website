@@ -1709,7 +1709,7 @@ section { padding: 100px 0; }
   .call-bar-doctor { width: 36px; height: 36px; }
   .doctor-online { font-size: 0.82rem; gap: 8px; }
   .online-dot { width: 8px; height: 8px; }
-  .footer { margin-bottom: 60px; }
+  .footer { padding-bottom: 70px; }
   .about-story-img img { height: auto; }
   .product-footer { flex-direction: column; align-items: flex-start; gap: 12px; }
   .product-footer .btn { width: 100%; justify-content: center; }
