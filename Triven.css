@@ -2108,7 +2108,8 @@ section { padding: 100px 0; }
     align-items: center;
   }
   .nav-container > .nav-tools .search-bar,
-  .nav-container > .nav-tools a[aria-label="Account"] {
+  .nav-container > .nav-tools a[aria-label="Account"],
+  .nav-container > .nav-tools a[aria-label="Cart"] {
     display: none !important;
   }
   .hamburger span { background: var(--forest); }
