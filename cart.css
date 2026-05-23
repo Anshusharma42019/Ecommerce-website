@@ -422,6 +422,76 @@ body:has(.call-float-bar) .cart-toast {
 }
 
 /* ----------------------------------------------------------
+   PAYMENT METHOD SELECTOR
+   ---------------------------------------------------------- */
+.pay-method-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  font-family: 'DM Sans', sans-serif;
+}
+.pay-method-options {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.pay-method-btn {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid rgba(13,40,24,0.15);
+  background: var(--cream);
+  color: var(--forest);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.pay-method-btn:hover { border-color: var(--forest); }
+.pay-method-btn.active {
+  background: var(--forest);
+  color: #fff;
+  border-color: var(--forest);
+}
+.cod-charge-note {
+  font-size: 0.75rem;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+}
+.cod-breakdown {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  font-family: 'DM Sans', sans-serif;
+  color: #166534;
+  font-weight: 600;
+}
+.cod-breakdown i { margin-right: 4px; font-size: 0.7rem; }
+
+/* ----------------------------------------------------------
    ORDER SUCCESS / ERROR TOAST
    ---------------------------------------------------------- */
 .order-toast {

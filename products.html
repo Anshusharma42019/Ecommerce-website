@@ -330,16 +330,7 @@
   <script src="config.js"></script>
   <script src="Triven.js"></script>
   <script src="auth.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="cart.js"></script>
-  <script>
-    const callBarDoc = document.querySelector('.call-bar-doctor');
-    const doctors = ['assets/Doctor1.png', 'assets/Doctor2.png'];
-    let idx = 0;
-    setInterval(() => {
-      idx = (idx + 1) % doctors.length;
-      callBarDoc.style.opacity = '0';
-      setTimeout(() => { callBarDoc.src = doctors[idx]; callBarDoc.style.opacity = '1'; }, 400);
-    }, 3000);
-  </script>
 </body>
 </html>

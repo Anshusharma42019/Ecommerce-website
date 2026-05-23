@@ -91,26 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
         firstName: document.getElementById('firstName').value.trim(),
         lastName: document.getElementById('lastName').value.trim(),
         email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
         password: document.getElementById('password').value
       };
-
-      const phone = document.getElementById('phone').value.trim();
-      if (phone) payload.phone = phone;
-
-      const address = document.getElementById('address').value.trim();
-      if (address) payload.address = address;
-
-      const landmark = document.getElementById('landmark').value.trim();
-      if (landmark) payload.landmark = landmark;
-
-      const city = document.getElementById('city').value.trim();
-      if (city) payload.city = city;
-
-      const state = document.getElementById('state').value.trim();
-      if (state) payload.state = state;
-
-      const pincode = document.getElementById('pincode').value.trim();
-      if (pincode) payload.pincode = pincode;
 
       const btn = document.getElementById('registerBtn');
       const originalText = btn.innerHTML;

@@ -3,172 +3,421 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — Triven Ayurveda</title>
+  <title>Sign In — Triven Ayurveda</title>
   <link rel="stylesheet" href="Triven.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    .auth-container {
+    body { background: var(--cream); overflow-x: hidden; }
+
+    .login-page {
       min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── LEFT PANEL ── */
+    .login-left {
+      background: var(--grad-forest);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 56px;
+      overflow: hidden;
+    }
+    .login-left::before {
+      content: '';
+      position: absolute;
+      width: 420px; height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(82,183,136,0.18) 0%, transparent 70%);
+      top: -80px; right: -100px;
+      pointer-events: none;
+    }
+    .login-left::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+      bottom: -60px; left: -60px;
+      pointer-events: none;
+    }
+    .login-left-inner { position: relative; z-index: 1; }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 56px;
+      text-decoration: none;
+    }
+    .login-logo img {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: 2px solid rgba(201,168,76,0.4);
+    }
+    .login-logo-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: var(--white);
+      font-weight: 600;
+    }
+    .login-logo-tag {
+      font-size: 0.65rem;
+      color: var(--gold-light);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .login-left h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      color: var(--white);
+      line-height: 1.25;
+      margin-bottom: 16px;
+    }
+    .login-left h1 em {
+      font-style: italic;
+      color: var(--gold-light);
+      background: none;
+      -webkit-text-fill-color: var(--gold-light);
+    }
+    .login-left p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      max-width: 340px;
+      margin-bottom: 40px;
+    }
+
+    .login-perks { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .login-perks li {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+    .login-perks li .perk-icon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold-light);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .login-divider {
+      width: 48px; height: 2px;
+      background: var(--grad-gold);
+      border-radius: 2px;
+      margin: 40px 0 0;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .login-right {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 20px;
-      background: linear-gradient(135deg, #f4f9f4 0%, #e8f5e9 100%);
+      padding: 60px 48px;
+      background: var(--cream);
     }
-    .auth-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-      width: 100%;
-      max-width: 450px;
-      border: 1px solid rgba(74, 124, 89, 0.1);
+    .login-form-wrap { width: 100%; max-width: 420px; }
+
+    .login-form-header { margin-bottom: 32px; }
+    .login-form-header .step-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
     }
-    .auth-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .auth-logo {
-      width: 60px;
-      margin-bottom: 15px;
-    }
-    .auth-title {
-      font-size: 1.8rem;
-      color: var(--forest-dark);
-      margin-bottom: 10px;
-    }
-    .auth-subtitle {
-      color: #666;
-      font-size: 0.95rem;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-group label {
+    .login-form-header .step-tag::before {
+      content: '';
       display: block;
-      margin-bottom: 8px;
-      color: var(--forest-dark);
-      font-weight: 500;
-      font-size: 0.95rem;
+      width: 24px; height: 1px;
+      background: var(--gold);
+      opacity: 0.6;
     }
-    .form-group input {
+    .login-form-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      color: var(--forest);
+      margin-bottom: 6px;
+    }
+    .login-form-header p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 0.88rem;
+      display: none;
+      gap: 10px;
+    }
+    .alert-error  { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+    .alert-success{ background: #dcfce7; color: #15803d; border: 1px solid #4ade80; }
+
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--forest);
+      margin-bottom: 7px;
+      letter-spacing: 0.3px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap i {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+    .input-wrap input {
       width: 100%;
-      padding: 12px 15px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-    .form-group input:focus {
+      padding: 12px 14px 12px 38px;
+      border: 1.5px solid rgba(13,40,24,0.12);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.93rem;
+      color: var(--text);
+      background: var(--white);
       outline: none;
-      border-color: var(--forest);
-      box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+      transition: all 0.25s;
+      box-sizing: border-box;
     }
+    .input-wrap input:focus {
+      border-color: var(--forest-light);
+      box-shadow: 0 0 0 3px rgba(45,106,79,0.08);
+    }
+    .input-wrap input::placeholder { color: #bbb; }
+
     .form-options {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 25px;
-      font-size: 0.9rem;
+      margin-bottom: 22px;
+      font-size: 0.85rem;
+    }
+    .remember-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .remember-label input[type="checkbox"] {
+      accent-color: var(--forest);
+      width: 15px; height: 15px;
     }
     .forgot-link {
-      color: var(--forest);
+      color: var(--forest-light);
+      font-weight: 600;
       text-decoration: none;
-      font-weight: 500;
+      font-size: 0.85rem;
     }
-    .auth-btn {
+    .forgot-link:hover { text-decoration: underline; }
+
+    .login-btn {
       width: 100%;
       padding: 14px;
-      background: var(--forest);
-      color: white;
+      background: var(--grad-forest);
+      color: var(--white);
       border: none;
-      border-radius: 8px;
-      font-size: 1rem;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.3s var(--ease);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(13,40,24,0.2);
     }
-    .auth-btn:hover {
-      background: var(--forest-dark);
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(13,40,24,0.3);
     }
-    .auth-footer {
+
+    .login-footer {
       text-align: center;
-      margin-top: 25px;
-      font-size: 0.95rem;
-      color: #666;
+      margin-top: 24px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
     }
-    .auth-footer a {
-      color: var(--forest);
-      text-decoration: none;
-      font-weight: 600;
+    .login-footer a { color: var(--forest-light); font-weight: 600; text-decoration: none; }
+    .login-footer a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+
+    /* Tablet landscape */
+    @media (max-width: 1024px) {
+      .login-left  { padding: 48px 40px; }
+      .login-right { padding: 48px 36px; }
     }
-    .alert {
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-      display: none;
-    }
-    .alert-error {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #f87171;
-    }
-    .alert-success {
-      background: #dcfce7;
-      color: #15803d;
-      border: 1px solid #4ade80;
-    }
-    
-    @media (max-width: 480px) {
-      .auth-container {
-        padding: 20px 10px;
+
+    /* Tablet portrait — stack vertically */
+    @media (max-width: 860px) {
+      .login-page {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
       }
-      .auth-card {
-        padding: 30px 20px;
-        border-radius: 16px;
+      .login-left {
+        padding: 28px 24px;
+        flex-direction: row;
+        align-items: center;
+        min-height: unset;
       }
-      .auth-title {
-        font-size: 1.6rem;
+      .login-left::before { width: 200px; height: 200px; top: -60px; right: -40px; }
+      .login-left::after  { display: none; }
+      .login-left-inner {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        width: 100%;
       }
+      .login-logo { margin-bottom: 0; flex-shrink: 0; }
+      .login-left h1 {
+        font-size: 1.3rem;
+        margin-bottom: 0;
+        white-space: nowrap;
+      }
+      .login-left p   { display: none; }
+      .login-perks    { display: none; }
+      .login-divider  { display: none; }
+
+      .login-right {
+        padding: 40px 32px;
+        align-items: flex-start;
+      }
+      .login-form-wrap { max-width: 100%; }
+    }
+
+    /* Mobile */
+    @media (max-width: 540px) {
+      .login-left  { padding: 20px 16px; }
+      .login-left h1 { font-size: 1.1rem; }
+      .login-logo img { width: 38px; height: 38px; }
+      .login-logo-name { font-size: 0.95rem; }
+      .login-logo-tag  { display: none; }
+
+      .login-right { padding: 28px 16px; }
+      .login-form-header { margin-bottom: 24px; }
+      .login-form-header h2 { font-size: 1.6rem; }
+
+      .input-wrap input { font-size: 1rem; padding: 13px 14px 13px 38px; }
+      .login-btn { padding: 15px; font-size: 1rem; }
+    }
+
+    /* Very small phones */
+    @media (max-width: 360px) {
+      .login-left  { padding: 16px 12px; }
+      .login-right { padding: 24px 12px; }
+      .login-left h1 { font-size: 1rem; }
     }
   </style>
 </head>
 <body>
-  <div class="auth-container">
-    <div class="auth-card">
-      <div class="auth-header">
-        <a href="index.html"><img src="assets/Trivenlogo.png" alt="Triven Logo" class="auth-logo" /></a>
-        <h1 class="auth-title">Welcome Back</h1>
-        <p class="auth-subtitle">Sign in to your Triven Ayurveda account.</p>
-      </div>
-      
-      <div id="loginAlert" class="alert alert-error"></div>
+  <div class="login-page">
 
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" required placeholder="Enter your email" />
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" required placeholder="Enter your password" />
-        </div>
-        <div class="form-options">
-          <label style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" id="rememberMe"> Remember me
-          </label>
-          <a href="#" class="forgot-link">Forgot Password?</a>
-        </div>
-        <button type="submit" class="auth-btn" id="loginBtn">Sign In</button>
-      </form>
-      
-      <div class="auth-footer">
-        Don't have an account? <a href="register.html">Create Account</a>
+    <!-- LEFT -->
+    <div class="login-left">
+      <div class="login-left-inner">
+        <a href="index.html" class="login-logo">
+          <img src="assets/Trivenlogo.png" alt="Triven" />
+          <div>
+            <span class="login-logo-name">Triven Ayurveda</span>
+            <span class="login-logo-tag">Ancient · Pure · Trusted</span>
+          </div>
+        </a>
+
+        <h1>Welcome<br /><em>Back</em></h1>
+        <p>Sign in to access your orders, exclusive offers, and personalised Ayurvedic recommendations.</p>
+
+        <ul class="login-perks">
+          <li>
+            <span class="perk-icon"><i class="fas fa-box-open"></i></span>
+            Track your orders in real time
+          </li>
+          <li>
+            <span class="perk-icon"><i class="fas fa-heart"></i></span>
+            View your wishlist & saved products
+          </li>
+          <li>
+            <span class="perk-icon"><i class="fas fa-tag"></i></span>
+            Unlock member-only discounts
+          </li>
+          <li>
+            <span class="perk-icon"><i class="fas fa-headset"></i></span>
+            Priority Ayurvedic expert support
+          </li>
+        </ul>
+
+        <div class="login-divider"></div>
       </div>
     </div>
+
+    <!-- RIGHT -->
+    <div class="login-right">
+      <div class="login-form-wrap">
+        <div class="login-form-header">
+          <div class="step-tag">Sign In</div>
+          <h2>Welcome Back</h2>
+          <p>Enter your credentials to continue.</p>
+        </div>
+
+        <div id="loginAlert" class="alert alert-error"></div>
+
+        <form id="loginForm">
+          <div class="field">
+            <label for="email">Email Address</label>
+            <div class="input-wrap">
+              <i class="far fa-envelope"></i>
+              <input type="email" id="email" required placeholder="john@example.com" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="password" required placeholder="Enter your password" />
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-label">
+              <input type="checkbox" id="rememberMe" /> Remember me
+            </label>
+            <a href="#" class="forgot-link">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="login-btn" id="loginBtn">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+          </button>
+        </form>
+
+        <div class="login-footer">
+          Don't have an account? <a href="register.html">Create Account</a>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="config.js"></script>

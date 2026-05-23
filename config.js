@@ -1,7 +1,7 @@
 // ===== API CONFIGURATION =====
 // Set IS_LOCAL to true for local development, false for production.
 
-const IS_LOCAL = false;
+const IS_LOCAL = true;
 
 const ENV = {
   LEADS_API:    'https://backend-triven-crm.vercel.app/api/v1/leads/submit',

@@ -7,6 +7,7 @@
   <meta name="description" content="Shop authentic Ayurvedic remedies by health category — Immunity, Digestion, Skin & Hair, Sleep & Stress, Vitality, Women's Health.">
   <link rel="stylesheet" href="Triven.css" />
   <link rel="stylesheet" href="products.css" />
+  <link rel="stylesheet" href="cart.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     /* ===== CATEGORIES PAGE STYLES ===== */
@@ -361,9 +362,42 @@
   <a href="#" class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></a>
 
 
-  <script src="config.js"></script>
+  <!-- Cart Drawer HTML -->
+  <div class="cart-drawer-overlay" id="cartDrawerOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Cart">
+    <div class="cart-drawer-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="orderHistoryBtn" class="cart-history-btn" title="View Order History" style="padding: 6px; font-size: 1.3rem;"><i class="fas fa-list-alt"></i></button>
+        <h3 style="margin: 0;"><i class="fas fa-shopping-bag"></i> Your Cart</h3>
+      </div>
+      <button id="cartDrawerClose" aria-label="Close cart">✕</button>
+    </div>
+    <div id="cartDrawerList"></div>
+    <div id="cartDrawerHistory" style="display: none;">
+      <div class="history-panel-header">
+        <h4><i class="fas fa-receipt"></i> My Orders</h4>
+        <p>Track and manage your recent orders</p>
+        <button id="close-user-history-drawer" class="history-back-btn"><i class="fas fa-arrow-left"></i> Back to Cart</button>
+      </div>
+      <div class="history-scroll-area">
+        <div id="history-loading-msg"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Loading orders...</div>
+        <div id="history-empty-msg" style="display:none;">You haven't placed any orders yet.</div>
+        <div id="user-history-body"></div>
+      </div>
+    </div>
+    <div class="cart-drawer-footer" id="cartDrawerFooter">
+      <div class="cart-drawer-total">
+        <span>Total</span>
+        <span id="cartDrawerTotal">₹0</span>
+      </div>
+      <button class="cart-checkout-btn" type="button"><i class="fas fa-lock"></i> Proceed to Checkout</button>
+    </div>
+  </aside>
+
   <script src="Triven.js"></script>
   <script src="auth.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="cart.js"></script>
   <script>
     if (document.getElementById('page-loader')) document.getElementById('page-loader').classList.add('hide');
     const callBarDoc = document.querySelector('.call-bar-doctor');

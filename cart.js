@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------
+﻿/* ----------------------------------------------------------
    1. CART STATE — single source of truth
    ---------------------------------------------------------- */
 const Cart = (() => {
@@ -107,7 +107,7 @@ function showOrderToast(orderNumber) {
     <div class="order-toast__icon"><i class="fas fa-check"></i></div>
     <div class="order-toast__body">
       <p class="order-toast__title">Order Placed Successfully!</p>
-      <p class="order-toast__sub">${orderNumber} &nbsp;·&nbsp; Cash on Delivery</p>
+      <p class="order-toast__sub">${orderNumber} &nbsp;·&nbsp; Payment Confirmed</p>
     </div>
     <button class="order-toast__close" aria-label="Close"><i class="fas fa-times"></i></button>
     <div class="order-toast__bar"></div>
@@ -116,6 +116,25 @@ function showOrderToast(orderNumber) {
   toast.querySelector('.order-toast__close').addEventListener('click', () => dismissOrderToast(toast));
   requestAnimationFrame(() => toast.classList.add('order-toast--show'));
   setTimeout(() => dismissOrderToast(toast), 5000);
+}
+
+function showCodOrderToast(orderNumber) {
+  document.querySelector('.order-toast')?.remove();
+  const toast = document.createElement('div');
+  toast.className = 'order-toast';
+  toast.innerHTML = `
+    <div class="order-toast__icon"><i class="fas fa-check"></i></div>
+    <div class="order-toast__body">
+      <p class="order-toast__title">COD Order Confirmed!</p>
+      <p class="order-toast__sub">${orderNumber} &nbsp;·&nbsp; ₹100 charge paid &nbsp;·&nbsp; Pay rest on delivery</p>
+    </div>
+    <button class="order-toast__close" aria-label="Close"><i class="fas fa-times"></i></button>
+    <div class="order-toast__bar"></div>
+  `;
+  document.body.appendChild(toast);
+  toast.querySelector('.order-toast__close').addEventListener('click', () => dismissOrderToast(toast));
+  requestAnimationFrame(() => toast.classList.add('order-toast--show'));
+  setTimeout(() => dismissOrderToast(toast), 6000);
 }
 
 function showErrorToast(message) {
@@ -257,6 +276,9 @@ function closeCartDrawer() {
   document.body.style.overflow = '';
 }
 
+// Selected payment method — 'cod' or 'razorpay'
+let selectedPaymentMethod = 'cod';
+
 async function handleCheckout() {
   const items = Cart.getItems();
   if (items.length === 0) return;
@@ -270,22 +292,14 @@ async function handleCheckout() {
 
   const user = JSON.parse(localStorage.getItem('user'));
   if (!user || !user.addresses || user.addresses.length === 0) {
-    alert("Please add a shipping address in your profile before checking out.");
-    // Try to open the profile modal (works when logged in with modified class or original nav-icon class)
-    const profileBtn = document.querySelector('[aria-label="Account"]') || document.querySelector('.nav-icon');
-    if(profileBtn) profileBtn.click();
+    showAddressModal();
     return;
   }
 
   const payload = {
-    items: items.map(i => ({
-      productId: i.id,
-      name: i.name,
-      price: i.price,
-      quantity: i.qty
-    })),
+    items: items.map(i => ({ productId: i.id, name: i.name, price: i.price, quantity: i.qty })),
     shippingAddressId: user.addresses[0]._id,
-    paymentMethod: 'cod'
+    paymentMethod: selectedPaymentMethod
   };
 
   const btn = document.querySelector('.cart-checkout-btn');
@@ -294,31 +308,169 @@ async function handleCheckout() {
   btn.disabled = true;
 
   try {
+    // Step 1: Create order
     const res = await fetch(`${ENV.ORDERS_API}/orders`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(payload)
     });
-
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || data.errors?.[0]?.message || 'Failed to place order');
 
-    // Success! Clear cart.
-    Cart.clear();
-    updateBadge();
-    renderDrawerItems();
-    closeCartDrawer();
-    
-    showOrderToast(data.data.orderNumber);
+    const order = data.data;
+
+    if (selectedPaymentMethod === 'razorpay') {
+      // Step 2: Create Razorpay order for full amount
+      const rzpRes = await fetch(`${ENV.ORDERS_API}/payments/razorpay/${order._id}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const rzpData = await rzpRes.json();
+      if (!rzpRes.ok) throw new Error(rzpData.message || 'Payment initiation failed');
+
+      btn.innerHTML = originalHtml;
+      btn.disabled = false;
+
+      // Step 3: Open Razorpay checkout for full payment
+      await openRazorpayCheckout(rzpData.data, order, token);
+    } else {
+      // COD — open Razorpay to collect ₹100 confirmation charge
+      btn.innerHTML = originalHtml;
+      btn.disabled = false;
+      await openCodConfirmationCheckout(order, token);
+    }
   } catch (err) {
     showErrorToast(err.message);
-  } finally {
     btn.innerHTML = originalHtml;
     btn.disabled = false;
   }
+}
+
+function openRazorpayCheckout(rzpData, order, token) {
+  return new Promise((resolve, reject) => {
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    const userName = user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : '';
+    const options = {
+      key: rzpData.razorpayKeyId || 'rzp_test_SsJNs2keLQvXko',
+      amount: rzpData.amount,
+      currency: rzpData.currency || 'INR',
+      name: 'Triven Ayurveda',
+      description: `Order #${order.orderNumber}`,
+      image: 'https://triven-ayurveda.vercel.app/Frontend/assets/Trivenlogo.png',
+      order_id: rzpData.razorpayOrderId,
+      prefill: { name: userName, email: user.email || '', contact: user.phone || '' },
+      method: { upi: true, card: true, netbanking: true, wallet: true, emi: false, paylater: false },
+      config: {
+        display: {
+          blocks: {
+            upi_block: {
+              name: 'Pay via UPI',
+              instruments: [
+                { method: 'upi', flows: ['intent'], apps: ['google_pay'] },
+                { method: 'upi', flows: ['intent'], apps: ['phonepe'] },
+                { method: 'upi', flows: ['intent'], apps: ['paytm'] },
+                { method: 'upi', flows: ['qr'] },
+                { method: 'upi', flows: ['collect'] }
+              ]
+            },
+            other: { name: 'Other Methods' }
+          },
+          sequence: ['block.upi_block', 'block.other'],
+          preferences: { show_default_blocks: true }
+        }
+      },
+      theme: { color: '#1e4d2b' },
+      handler: async function (response) {
+        try {
+          const verifyRes = await fetch(`${ENV.ORDERS_API}/payments/razorpay/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              orderId: order._id
+            })
+          });
+          const verifyData = await verifyRes.json();
+          if (!verifyRes.ok) throw new Error(verifyData.message || 'Payment verification failed');
+
+          Cart.clear();
+          updateBadge();
+          renderDrawerItems();
+          closeCartDrawer();
+          showOrderToast(order.orderNumber);
+          resolve();
+        } catch (err) {
+          showErrorToast(err.message);
+          reject(err);
+        }
+      },
+      modal: {
+        ondismiss: function () {
+          showErrorToast('Payment cancelled. Your order is saved — retry from Order History.');
+          resolve();
+        }
+      }
+    };
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function (resp) {
+      showErrorToast('Payment failed: ' + (resp.error?.description || 'Unknown error'));
+      resolve();
+    });
+    rzp.open();
+  });
+}
+
+function openCodConfirmationCheckout(order, token) {
+  return new Promise((resolve) => {
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    const userName = user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : '';
+    const options = {
+      key: 'rzp_test_SsJNs2keLQvXko',
+      amount: 10000, // ₹100 in paise
+      currency: 'INR',
+      name: 'Triven Ayurveda',
+      description: `COD Confirmation — Order #${order.orderNumber}`,
+      image: 'https://triven-ayurveda.vercel.app/Frontend/assets/Trivenlogo.png',
+      prefill: { name: userName, email: user.email || '', contact: user.phone || '' },
+      notes: { orderId: order._id, type: 'cod_confirmation' },
+      method: { upi: true, card: true, netbanking: true, wallet: true, emi: false, paylater: false },
+      theme: { color: '#1e4d2b' },
+      handler: async function () {
+        try {
+          const confirmRes = await fetch(`${ENV.ORDERS_API}/orders/${order._id}/cod-confirm`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const confirmData = await confirmRes.json();
+          if (!confirmRes.ok) throw new Error(confirmData.message || 'COD confirmation failed');
+
+          Cart.clear();
+          updateBadge();
+          renderDrawerItems();
+          closeCartDrawer();
+          showCodOrderToast(order.orderNumber);
+          resolve();
+        } catch (err) {
+          showErrorToast(err.message);
+          resolve();
+        }
+      },
+      modal: {
+        ondismiss: function () {
+          showErrorToast('COD confirmation cancelled. Your order is saved — retry from Order History.');
+          resolve();
+        }
+      }
+    };
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function (resp) {
+      showErrorToast('COD confirmation payment failed: ' + (resp.error?.description || 'Unknown error'));
+      resolve();
+    });
+    rzp.open();
+  });
 }
 
 function renderDrawerItems() {
@@ -371,9 +523,38 @@ function renderDrawerItems() {
     if (!isLoggedIn) {
       checkoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Log In to Checkout';
     } else {
-      checkoutBtn.innerHTML = '<i class="fas fa-lock"></i> Proceed to Checkout';
+      checkoutBtn.innerHTML = selectedPaymentMethod === 'razorpay'
+        ? '<i class="fas fa-credit-card"></i> Pay Online'
+        : '<i class="fas fa-truck"></i> Pay \u20b9100 & Confirm COD';
     }
   }
+
+  // Render payment method selector — anchor before the total row
+  let paySelector = document.getElementById('cartPaymentSelector');
+  if (!paySelector) {
+    paySelector = document.createElement('div');
+    paySelector.id = 'cartPaymentSelector';
+    const totalRow = document.querySelector('#cartDrawerFooter .cart-drawer-total');
+    if (totalRow) totalRow.parentNode.insertBefore(paySelector, totalRow);
+  }
+  paySelector.innerHTML = `
+    <div class="pay-method-label">Payment Method</div>
+    <div class="pay-method-options">
+      <button class="pay-method-btn ${selectedPaymentMethod === 'cod' ? 'active' : ''}" data-method="cod">
+        <i class="fas fa-truck"></i> Cash on Delivery
+      </button>
+      <button class="pay-method-btn ${selectedPaymentMethod === 'razorpay' ? 'active' : ''}" data-method="razorpay">
+        <i class="fas fa-bolt"></i> Pay Online
+      </button>
+    </div>
+    ${selectedPaymentMethod === 'cod' ? '<div class="cod-charge-note"><i class="fas fa-info-circle"></i> \u20b9100 paid now via Razorpay · rest on delivery</div>' : ''}
+  `;
+  paySelector.querySelectorAll('.pay-method-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      selectedPaymentMethod = b.dataset.method;
+      renderDrawerItems();
+    });
+  });
 
   list.innerHTML = items.map(item => `
     <div class="drawer-item" data-id="${item.id}">
@@ -408,9 +589,28 @@ function renderDrawerItems() {
     });
   });
 
-  // Compute total
+  // Compute total — no extra charge for COD, ₹100 is deducted from total at delivery
   const sum = items.reduce((acc, i) => acc + i.price * i.qty, 0);
-  if (total) total.textContent = `₹${sum.toLocaleString('en-IN')}`;
+  if (total) total.textContent = `\u20b9${sum.toLocaleString('en-IN')}`;
+
+  // Show breakdown for COD
+  let codBreakdown = document.getElementById('cartCodBreakdown');
+  if (selectedPaymentMethod === 'cod' && sum > 0) {
+    if (!codBreakdown) {
+      codBreakdown = document.createElement('div');
+      codBreakdown.id = 'cartCodBreakdown';
+      const totalRow = document.querySelector('#cartDrawerFooter .cart-drawer-total');
+      if (totalRow) totalRow.parentNode.insertBefore(codBreakdown, totalRow.nextSibling);
+    }
+    const remaining = Math.max(0, sum - 100);
+    codBreakdown.innerHTML = `
+      <div class="cod-breakdown">
+        <span><i class="fas fa-bolt"></i> Pay now (Razorpay)</span><span>\u20b9100</span>
+        <span><i class="fas fa-truck"></i> Pay on delivery</span><span>\u20b9${remaining.toLocaleString('en-IN')}</span>
+      </div>`;
+  } else if (codBreakdown) {
+    codBreakdown.innerHTML = '';
+  }
 }
 
 // Re-render a specific product card's button after drawer changes
@@ -436,6 +636,319 @@ function syncAll() {
       name:  card.dataset.name,
       price: parseFloat(card.dataset.price),
     });
+  });
+}
+
+/* ----------------------------------------------------------
+   LOCATION CONFIRM DIALOG
+   ---------------------------------------------------------- */
+function showLocationConfirm(oldState, newState, newCity) {
+  return new Promise(resolve => {
+    document.getElementById('locConfirmDialog')?.remove();
+    const d = document.createElement('div');
+    d.id = 'locConfirmDialog';
+    d.style.cssText = 'position:fixed;inset:0;z-index:999999999;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:16px;';
+    d.innerHTML = `
+      <div style="background:#fff;border-radius:16px;max-width:340px;width:100%;padding:28px 24px;box-shadow:0 20px 50px rgba(0,0,0,0.25);font-family:'DM Sans',sans-serif;text-align:center;">
+        <div style="width:52px;height:52px;background:#fff8e1;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <i class="fas fa-map-marker-alt" style="color:#f59e0b;font-size:1.3rem;"></i>
+        </div>
+        <p style="font-size:1rem;font-weight:700;color:#0d2818;margin:0 0 8px;">Different Location Detected</p>
+        <p style="font-size:0.88rem;color:#666;margin:0 0 20px;line-height:1.6;">
+          Your current location is in <strong style="color:#0d2818;">${newCity}, ${newState}</strong>,
+          but your address shows <strong style="color:#0d2818;">${oldState}</strong>.
+          <br/><br/>Are you visiting another state? Update City, State & Pincode?
+        </p>
+        <div style="display:flex;gap:10px;">
+          <button id="locConfirmNo" style="flex:1;padding:11px;border:1.5px solid #ddd;border-radius:10px;background:#fff;color:#555;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;">Keep Existing</button>
+          <button id="locConfirmYes" style="flex:1;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,#0d2818,#1a3d2b);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;">Yes, Update</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(d);
+    document.getElementById('locConfirmYes').onclick = () => { d.remove(); resolve(true); };
+    document.getElementById('locConfirmNo').onclick  = () => { d.remove(); resolve(false); };
+    d.addEventListener('click', e => { if (e.target === d) { d.remove(); resolve(false); } });
+  });
+}
+
+/* ----------------------------------------------------------
+   ADDRESS MODAL — shown when user has no address at checkout
+   ---------------------------------------------------------- */
+function showAddressModal() {
+  document.getElementById('addressModal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'addressModal';
+  modal.style.cssText = `
+    position: fixed; inset: 0; z-index: 99999999;
+    background: rgba(13,40,24,0.7); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px; opacity: 0; transition: opacity 0.3s ease;
+  `;
+
+  modal.innerHTML = `
+    <div id="addressModalBox" style="
+      background: #fff; border-radius: 20px; width: 100%; max-width: 460px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+      transform: translateY(30px); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      font-family: 'DM Sans', sans-serif;
+    ">
+      <!-- Header -->
+      <div style="background: linear-gradient(135deg, #0d2818, #1a3d2b); padding: 24px 24px 20px; border-radius: 20px 20px 0 0; position: relative;">
+        <button id="closeAddressModal" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:42px;height:42px;background:rgba(255,255,255,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-map-marker-alt" style="color:#e8d07a;font-size:1.1rem;"></i>
+          </div>
+          <div>
+            <p style="margin:0;font-size:1.1rem;font-weight:700;color:#fff;">Add Shipping Address</p>
+            <p style="margin:0;font-size:0.82rem;color:rgba(255,255,255,0.6);">Required to place your order</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Button -->
+      <div style="padding: 16px 24px 0;">
+        <button id="useLocationBtn" style="
+          width:100%; padding:12px; border:1.5px dashed rgba(13,40,24,0.25);
+          border-radius:12px; background:#f4f9f4; color:#1a3d2b;
+          font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600;
+          cursor:pointer; display:flex; align-items:center; justify-content:center;
+          gap:10px; transition:all 0.2s;
+        ">
+          <i class="fas fa-crosshairs" style="color:#2d6a4f;"></i>
+          Use My Current Location
+        </button>
+        <div id="locationStatus" style="font-size:0.8rem;color:#666;text-align:center;margin-top:8px;min-height:18px;"></div>
+      </div>
+
+      <!-- Divider -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 24px;">
+        <div style="flex:1;height:1px;background:#eee;"></div>
+        <span style="font-size:0.78rem;color:#aaa;font-weight:600;">OR ENTER MANUALLY</span>
+        <div style="flex:1;height:1px;background:#eee;"></div>
+      </div>
+
+      <!-- Form -->
+      <form id="addressForm" style="padding: 0 24px 24px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex;gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:0.8rem;font-weight:600;color:#0d2818;display:block;margin-bottom:6px;">Full Name *</label>
+            <input id="addrFullName" type="text" required placeholder="John Doe"
+              style="width:100%;padding:11px 14px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:0.8rem;font-weight:600;color:#0d2818;display:block;margin-bottom:6px;">Phone *</label>
+            <input id="addrPhone" type="tel" required placeholder="10-digit number" pattern="[6-9][0-9]{9}"
+              style="width:100%;padding:11px 14px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+          </div>
+        </div>
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;color:#0d2818;display:block;margin-bottom:6px;">Address Line 1 *</label>
+          <input id="addrLine1" type="text" required placeholder="House/Flat No, Street Name"
+            style="width:100%;padding:11px 14px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+        </div>
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;color:#0d2818;display:block;margin-bottom:6px;">Landmark <span style="color:#aaa;font-weight:400;">(optional)</span></label>
+          <input id="addrLine2" type="text" placeholder="Near Apollo Hospital"
+            style="width:100%;padding:11px 14px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+        </div>
+        <div style="display:flex;gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:0.8rem;font-weight:600;color:#0d2818;display:block;margin-bottom:6px;">City *</label>
+            <input id="addrCity" type="text" required placeholder="Mumbai"
+              style="width:100%;padding:11px 14px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:0.8rem;font-weight:600;color:#0d2818;display:block;margin-bottom:6px;">State *</label>
+            <input id="addrState" type="text" required placeholder="Maharashtra"
+              style="width:100%;padding:11px 14px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+          </div>
+        </div>
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;color:#0d2818;display:block;margin-bottom:6px;">Pincode *</label>
+          <input id="addrPincode" type="text" required placeholder="6-digit pincode" pattern="[0-9]{6}" maxlength="6"
+            style="width:100%;padding:11px 14px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+        </div>
+
+        <div id="addrError" style="display:none;background:#fee2e2;color:#b91c1c;border:1px solid #f87171;padding:10px 14px;border-radius:10px;font-size:0.85rem;"></div>
+
+        <button type="submit" id="saveAddressBtn" style="
+          width:100%;padding:14px;background:linear-gradient(135deg,#0d2818,#1a3d2b);
+          color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;
+          font-size:0.95rem;font-weight:700;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;gap:10px;
+          box-shadow:0 4px 20px rgba(13,40,24,0.2);transition:all 0.25s;
+        ">
+          <i class="fas fa-check"></i> Save & Continue to Checkout
+        </button>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => {
+    modal.style.opacity = '1';
+    document.getElementById('addressModalBox').style.transform = 'translateY(0)';
+  });
+
+  const closeModal = () => {
+    modal.style.opacity = '0';
+    modal.addEventListener('transitionend', () => modal.remove(), { once: true });
+  };
+
+  document.getElementById('closeAddressModal').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  // Focus styles on inputs
+  modal.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('focus', () => inp.style.borderColor = '#2d6a4f');
+    inp.addEventListener('blur',  () => inp.style.borderColor = 'rgba(13,40,24,0.12)');
+  });
+
+  // Pre-fill name & phone from logged-in user
+  const _u = JSON.parse(localStorage.getItem('user') || '{}');
+  if (_u.firstName) document.getElementById('addrFullName').value = `${_u.firstName} ${_u.lastName || ''}`.trim();
+  if (_u.phone)     document.getElementById('addrPhone').value    = _u.phone;
+
+  // Use Current Location
+  document.getElementById('useLocationBtn').addEventListener('click', () => {
+    const statusEl = document.getElementById('locationStatus');
+    const locBtn   = document.getElementById('useLocationBtn');
+
+    if (!navigator.geolocation) {
+      statusEl.style.color = '#b91c1c';
+      statusEl.textContent = 'Geolocation is not supported by your browser.';
+      return;
+    }
+
+    locBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting location...';
+    locBtn.disabled  = true;
+    statusEl.style.color = '#666';
+    statusEl.textContent = 'Requesting location permission...';
+
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const { latitude, longitude, accuracy } = coords;
+        statusEl.textContent = `Location found (±${Math.round(accuracy)}m) — fetching address...`;
+
+        try {
+          // Use Google Maps Geocoding-style fallback via Nominatim with accept-language=en
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1&accept-language=en`,
+            { headers: { 'Accept-Language': 'en' } }
+          );
+          if (!res.ok) throw new Error('Geocoding request failed');
+          const geo = await res.json();
+          const a   = geo.address || {};
+
+          const detectedCity    = a.city || a.town || a.municipality || a.city_district || a.village || '';
+          const detectedState   = a.state || '';
+          const detectedPincode = (a.postcode || '').replace(/\s/g, '');
+
+          const fillFields = () => {
+            document.getElementById('addrCity').value    = detectedCity;
+            document.getElementById('addrState').value   = detectedState;
+            document.getElementById('addrPincode').value = detectedPincode;
+            ['addrCity','addrState','addrPincode'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el.value) {
+                el.style.borderColor = '#2d6a4f';
+                el.style.background  = '#f0fdf4';
+                setTimeout(() => { el.style.background = ''; el.style.borderColor = 'rgba(13,40,24,0.12)'; }, 2000);
+              }
+            });
+            statusEl.style.color = '#15803d';
+            statusEl.textContent = '\u2713 City, State & Pincode filled \u2014 please enter your address manually.';
+          };
+
+          const existingState = document.getElementById('addrState').value.trim();
+          if (existingState && detectedState && existingState.toLowerCase() !== detectedState.toLowerCase()) {
+            showLocationConfirm(existingState, detectedState, detectedCity).then(confirmed => {
+              if (confirmed) fillFields();
+              else {
+                statusEl.style.color = '#b78103';
+                statusEl.textContent = 'Location update cancelled. Existing address unchanged.';
+              }
+            });
+          } else {
+            fillFields();
+          }
+        } catch (err) {
+          statusEl.style.color = '#b91c1c';
+          statusEl.textContent = 'Could not fetch address details. Please fill manually.';
+        }
+
+        locBtn.innerHTML = '<i class="fas fa-crosshairs" style="color:#2d6a4f;"></i> Use My Current Location';
+        locBtn.disabled  = false;
+      },
+      (err) => {
+        statusEl.style.color = '#b91c1c';
+        statusEl.textContent =
+          err.code === err.PERMISSION_DENIED
+            ? 'Location permission denied. Please allow access in your browser settings.'
+            : err.code === err.POSITION_UNAVAILABLE
+            ? 'Location unavailable. Please fill the address manually.'
+            : 'Location request timed out. Please fill manually.';
+        locBtn.innerHTML = '<i class="fas fa-crosshairs" style="color:#2d6a4f;"></i> Use My Current Location';
+        locBtn.disabled  = false;
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    );
+  });
+
+  // Save address form submit
+  document.getElementById('addressForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('accessToken');
+    const user  = JSON.parse(localStorage.getItem('user'));
+    const errEl = document.getElementById('addrError');
+    const saveBtn = document.getElementById('saveAddressBtn');
+    const origHtml = saveBtn.innerHTML;
+
+    errEl.style.display = 'none';
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    saveBtn.disabled = true;
+
+    const payload = {
+      fullName:     document.getElementById('addrFullName').value.trim(),
+      phone:        document.getElementById('addrPhone').value.trim(),
+      addressLine1: document.getElementById('addrLine1').value.trim(),
+      addressLine2: document.getElementById('addrLine2').value.trim(),
+      city:         document.getElementById('addrCity').value.trim(),
+      state:        document.getElementById('addrState').value.trim(),
+      pincode:      document.getElementById('addrPincode').value.trim(),
+      isDefault:    true
+    };
+
+    try {
+      const res = await fetch(`${ENV.PRODUCTS_API}/users/addresses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.errors?.[0]?.message || data.message || 'Failed to save address');
+
+      // Re-fetch user to get updated addresses
+      const profileRes = await fetch(`${ENV.PRODUCTS_API}/users/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const profileData = await profileRes.json();
+      if (profileRes.ok) localStorage.setItem('user', JSON.stringify(profileData.data));
+
+      closeModal();
+      // Proceed to checkout automatically
+      handleCheckout();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+      saveBtn.innerHTML = origHtml;
+      saveBtn.disabled = false;
+    }
   });
 }
 
@@ -744,13 +1257,30 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span>₹${order.totalAmount.toLocaleString('en-IN')}</span>
                     </div>
 
-                    <!-- Paid By -->
-                    <div style="margin-top:14px;background:#f5f5f5;border-radius:4px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-size:0.9rem;color:#212121;">Paid By</span>
-                        <span style="font-size:0.9rem;font-weight:600;color:#212121;display:flex;align-items:center;gap:6px;">
-                            ${isUpi ? `<span style="border:1.5px solid #424242;border-radius:3px;padding:1px 5px;font-size:0.7rem;font-weight:800;letter-spacing:0.5px;">UPI</span>` : `<i class="fas fa-money-bill-wave" style="color:#388e3c;"></i>`}
-                            ${payLabel}
-                        </span>
+                    <!-- Paid By + Payment Status -->
+                    <div style="margin-top:14px;background:#f5f5f5;border-radius:4px;overflow:hidden;">
+                        <div style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ebebeb;">
+                            <span style="font-size:0.9rem;color:#212121;">Paid By</span>
+                            <span style="font-size:0.9rem;font-weight:600;color:#212121;display:flex;align-items:center;gap:6px;">
+                                ${isUpi ? `<span style="border:1.5px solid #424242;border-radius:3px;padding:1px 5px;font-size:0.7rem;font-weight:800;letter-spacing:0.5px;">UPI</span>` : `<i class="fas fa-money-bill-wave" style="color:#388e3c;"></i>`}
+                                ${payLabel}
+                            </span>
+                        </div>
+                        <div style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:0.9rem;color:#212121;">Payment Status</span>
+                            <span style="font-size:0.75rem;font-weight:700;padding:4px 10px;border-radius:999px;letter-spacing:0.4px;text-transform:uppercase;
+                                ${order.paymentStatus === 'paid' || order.paymentStatus === 'captured' ? 'background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;' :
+                                  order.paymentStatus === 'pending' ? 'background:#fffbeb;color:#b45309;border:1px solid #fde68a;' :
+                                  order.paymentStatus === 'failed' ? 'background:#fef2f2;color:#991b1b;border:1px solid #fecaca;' :
+                                  'background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;'}
+                            ">
+                                ${order.paymentStatus === 'paid' || order.paymentStatus === 'captured' ? '<i class="fas fa-check-circle" style="margin-right:4px;"></i>' :
+                                  order.paymentStatus === 'pending' ? '<i class="fas fa-clock" style="margin-right:4px;"></i>' :
+                                  order.paymentStatus === 'failed' ? '<i class="fas fa-times-circle" style="margin-right:4px;"></i>' :
+                                  '<i class="fas fa-circle" style="margin-right:4px;"></i>'}
+                                ${(order.paymentStatus || 'pending').toUpperCase()}
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Download Invoice -->
@@ -758,6 +1288,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a href="${order.invoiceUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;background:#f5f5f5;border-radius:4px;padding:13px;font-size:0.92rem;font-weight:600;color:#212121;text-decoration:none;border:1px solid #e0e0e0;">
                         <i class="fas fa-file-download" style="font-size:1rem;"></i> Download Invoice
                     </a>` : ''}
+
+                    <!-- Retry Payment -->
+                    ${(order.paymentStatus === 'pending' || order.paymentStatus === 'failed') && !['cancelled','delivered','returned','refunded'].includes(order.status) ? `
+                    <button id="retryPaymentBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;padding:13px;background:linear-gradient(135deg,#1e4d2b,#2d6a40);color:#fff;border:none;border-radius:4px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+                        <i class="fas fa-redo"></i> Retry Payment
+                    </button>` : ''}
                 </div>
 
                 <!-- Offers earned -->
@@ -802,5 +1338,31 @@ document.addEventListener('DOMContentLoaded', () => {
         panel.querySelector('#closeOrderDetail').addEventListener('click', () => {
             panel.style.display = 'none';
         });
+
+        // Retry Payment
+        const retryBtn = panel.querySelector('#retryPaymentBtn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', async () => {
+                const token = localStorage.getItem('accessToken');
+                retryBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initiating...';
+                retryBtn.disabled = true;
+                try {
+                    const rzpRes = await fetch(`${ENV.ORDERS_API}/payments/razorpay/${order._id}`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const rzpData = await rzpRes.json();
+                    if (!rzpRes.ok) throw new Error(rzpData.message || 'Payment initiation failed');
+                    retryBtn.innerHTML = '<i class="fas fa-redo"></i> Retry Payment';
+                    retryBtn.disabled = false;
+                    await openRazorpayCheckout(rzpData.data, order, token);
+                    panel.style.display = 'none';
+                } catch (err) {
+                    showErrorToast(err.message);
+                    retryBtn.innerHTML = '<i class="fas fa-redo"></i> Retry Payment';
+                    retryBtn.disabled = false;
+                }
+            });
+        }
     }
 });
