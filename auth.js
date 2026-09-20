@@ -35,19 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value.trim();
+      const emailVal = document.getElementById('email')?.value.trim();
+      const phoneVal  = document.getElementById('loginPhone')?.value.trim();
       const password = document.getElementById('password').value;
       const btn = document.getElementById('loginBtn');
       const originalText = btn.innerHTML;
 
+      const loginPayload = { password };
+      if (phoneVal) loginPayload.phone = phoneVal;
+      else loginPayload.email = emailVal;
+
       setLoading(btn, true, originalText);
 
       try {
-        console.log("Sending login payload for:", email);
+        console.log("Sending login payload for:", phoneVal || emailVal);
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify(loginPayload)
         });
         
         const data = await response.json();
@@ -87,13 +92,16 @@ document.addEventListener('DOMContentLoaded', () => {
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
+      const emailVal = document.getElementById('email')?.value.trim();
+      const phoneVal  = document.getElementById('phone')?.value.trim();
+
       const payload = {
         firstName: document.getElementById('firstName').value.trim(),
         lastName: document.getElementById('lastName').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        phone: document.getElementById('phone').value.trim(),
         password: document.getElementById('password').value
       };
+      if (emailVal) payload.email = emailVal;
+      if (phoneVal)  payload.phone = phoneVal;
 
       const btn = document.getElementById('registerBtn');
       const originalText = btn.innerHTML;

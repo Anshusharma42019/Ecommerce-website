@@ -263,6 +263,33 @@
     .login-footer a { color: var(--forest-light); font-weight: 600; text-decoration: none; }
     .login-footer a:hover { text-decoration: underline; }
 
+    /* ── TOGGLE TABS ── */
+    .auth-toggle {
+      display: flex;
+      background: rgba(13,40,24,0.06);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+    .auth-toggle button {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .auth-toggle button.active {
+      background: var(--white);
+      color: var(--forest);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
     /* ── RESPONSIVE ── */
 
     /* Tablet landscape */
@@ -384,11 +411,25 @@
         <div id="loginAlert" class="alert alert-error"></div>
 
         <form id="loginForm">
-          <div class="field">
+          <!-- Toggle: Email / Phone -->
+          <div class="auth-toggle">
+            <button type="button" id="loginTabEmail" class="active" onclick="switchLoginTab('email')"><i class="far fa-envelope"></i> Email</button>
+            <button type="button" id="loginTabPhone" onclick="switchLoginTab('phone')"><i class="fas fa-phone-alt"></i> Phone</button>
+          </div>
+
+          <div class="field" id="loginEmailField">
             <label for="email">Email Address</label>
             <div class="input-wrap">
               <i class="far fa-envelope"></i>
-              <input type="email" id="email" required placeholder="john@example.com" />
+              <input type="email" id="email" placeholder="john@example.com" />
+            </div>
+          </div>
+
+          <div class="field" id="loginPhoneField" style="display:none;">
+            <label for="loginPhone">Phone Number</label>
+            <div class="input-wrap">
+              <i class="fas fa-phone-alt"></i>
+              <input type="tel" id="loginPhone" placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" />
             </div>
           </div>
 
@@ -404,7 +445,7 @@
             <label class="remember-label">
               <input type="checkbox" id="rememberMe" /> Remember me
             </label>
-            <a href="#" class="forgot-link">Forgot Password?</a>
+            <a href="#" class="forgot-link" onclick="openFP()">Forgot Password?</a>
           </div>
 
           <button type="submit" class="login-btn" id="loginBtn">
@@ -420,7 +461,156 @@
 
   </div>
 
+  <!-- FORGOT PASSWORD MODAL -->
+  <div id="fpOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;" onclick="closeFP()"></div>
+  <div id="fpModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:20px;padding:36px 32px;width:90%;max-width:400px;z-index:10000;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+    <!-- Step 1: Enter email or phone -->
+    <div id="fpStep1">
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:#1e4d2b;margin:0 0 6px;">Forgot Password?</h3>
+      <p style="color:#888;font-size:0.88rem;margin:0 0 22px;">Enter your registered email or phone number. We'll send an OTP.</p>
+      <div class="auth-toggle" style="margin-bottom:16px;">
+        <button type="button" id="fpTabEmail" class="active" onclick="switchFPTab('email')"><i class="far fa-envelope"></i> Email</button>
+        <button type="button" id="fpTabPhone" onclick="switchFPTab('phone')"><i class="fas fa-phone-alt"></i> Phone</button>
+      </div>
+      <div id="fpEmailWrap" class="input-wrap" style="margin-bottom:16px;">
+        <i class="far fa-envelope"></i>
+        <input type="email" id="fpEmail" placeholder="john@example.com" style="width:100%;padding:12px 14px 12px 38px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-size:0.93rem;outline:none;box-sizing:border-box;" />
+      </div>
+      <div id="fpPhoneWrap" class="input-wrap" style="margin-bottom:16px;display:none;">
+        <i class="fas fa-phone-alt"></i>
+        <input type="tel" id="fpPhone" placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" style="width:100%;padding:12px 14px 12px 38px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-size:0.93rem;outline:none;box-sizing:border-box;" />
+      </div>
+      <div id="fpAlert1" style="display:none;padding:10px 14px;border-radius:8px;font-size:0.85rem;margin-bottom:12px;"></div>
+      <button onclick="fpSendOTP()" style="width:100%;padding:13px;background:var(--grad-forest);color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:600;cursor:pointer;">Send OTP</button>
+      <p style="text-align:center;margin-top:14px;font-size:0.85rem;"><a href="#" onclick="closeFP()" style="color:#2d6a4f;font-weight:600;">Cancel</a></p>
+    </div>
+    <!-- Step 2: Enter OTP -->
+    <div id="fpStep2" style="display:none;">
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:#1e4d2b;margin:0 0 6px;">Enter OTP</h3>
+      <p id="fpOTPHint" style="color:#888;font-size:0.88rem;margin:0 0 22px;">OTP sent to your email/phone.</p>
+      <div class="input-wrap" style="margin-bottom:16px;">
+        <i class="fas fa-key"></i>
+        <input type="text" id="fpOTP" maxlength="6" placeholder="6-digit OTP" style="width:100%;padding:12px 14px 12px 38px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-size:1.1rem;letter-spacing:6px;outline:none;box-sizing:border-box;" />
+      </div>
+      <div id="fpAlert2" style="display:none;padding:10px 14px;border-radius:8px;font-size:0.85rem;margin-bottom:12px;"></div>
+      <button onclick="fpVerifyOTP()" style="width:100%;padding:13px;background:var(--grad-forest);color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:600;cursor:pointer;">Verify OTP</button>
+      <p style="text-align:center;margin-top:14px;font-size:0.85rem;"><a href="#" onclick="fpGoBack(1)" style="color:#2d6a4f;font-weight:600;">← Back</a></p>
+    </div>
+    <!-- Step 3: New Password -->
+    <div id="fpStep3" style="display:none;">
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:#1e4d2b;margin:0 0 6px;">New Password</h3>
+      <p style="color:#888;font-size:0.88rem;margin:0 0 22px;">Set your new password below.</p>
+      <div class="input-wrap" style="margin-bottom:16px;">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="fpNewPass" placeholder="New password" style="width:100%;padding:12px 14px 12px 38px;border:1.5px solid rgba(13,40,24,0.12);border-radius:10px;font-size:0.93rem;outline:none;box-sizing:border-box;" />
+      </div>
+      <div id="fpAlert3" style="display:none;padding:10px 14px;border-radius:8px;font-size:0.85rem;margin-bottom:12px;"></div>
+      <button onclick="fpResetPassword()" style="width:100%;padding:13px;background:var(--grad-forest);color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:600;cursor:pointer;">Reset Password</button>
+    </div>
+  </div>
+
   <script src="config.js"></script>
   <script src="auth.js"></script>
+  <script>
+    function switchLoginTab(tab) {
+      const emailField = document.getElementById('loginEmailField');
+      const phoneField = document.getElementById('loginPhoneField');
+      const emailInput = document.getElementById('email');
+      const phoneInput = document.getElementById('loginPhone');
+      const tabEmail   = document.getElementById('loginTabEmail');
+      const tabPhone   = document.getElementById('loginTabPhone');
+      if (tab === 'email') {
+        emailField.style.display = ''; phoneField.style.display = 'none';
+        emailInput.required = true;  phoneInput.required = false; phoneInput.value = '';
+        tabEmail.classList.add('active'); tabPhone.classList.remove('active');
+      } else {
+        phoneField.style.display = ''; emailField.style.display = 'none';
+        phoneInput.required = true;  emailInput.required = false; emailInput.value = '';
+        tabPhone.classList.add('active'); tabEmail.classList.remove('active');
+      }
+    }
+
+    // ── FORGOT PASSWORD ──
+    let fpResetToken = '';
+    let fpIdentifier = '';
+
+    function openFP() {
+      document.getElementById('fpOverlay').style.display = 'block';
+      document.getElementById('fpModal').style.display = 'block';
+      fpGoBack(1);
+    }
+    function closeFP() {
+      document.getElementById('fpOverlay').style.display = 'none';
+      document.getElementById('fpModal').style.display = 'none';
+    }
+    function fpGoBack(step) {
+      [1,2,3].forEach(s => document.getElementById('fpStep'+s).style.display = 'none');
+      document.getElementById('fpStep'+step).style.display = 'block';
+    }
+    function switchFPTab(tab) {
+      const eWrap = document.getElementById('fpEmailWrap');
+      const pWrap = document.getElementById('fpPhoneWrap');
+      const tE = document.getElementById('fpTabEmail');
+      const tP = document.getElementById('fpTabPhone');
+      if (tab === 'email') {
+        eWrap.style.display = ''; pWrap.style.display = 'none';
+        tE.classList.add('active'); tP.classList.remove('active');
+      } else {
+        pWrap.style.display = ''; eWrap.style.display = 'none';
+        tP.classList.add('active'); tE.classList.remove('active');
+      }
+    }
+    function fpAlert(step, msg, ok) {
+      const el = document.getElementById('fpAlert'+step);
+      el.textContent = msg;
+      el.style.display = 'block';
+      el.style.background = ok ? '#dcfce7' : '#fee2e2';
+      el.style.color = ok ? '#15803d' : '#b91c1c';
+    }
+    async function fpSendOTP() {
+      const phone = document.getElementById('fpPhone').value.trim();
+      const email = document.getElementById('fpEmail').value.trim();
+      fpIdentifier = phone || email;
+      if (!fpIdentifier) return fpAlert(1, 'Please enter email or phone.');
+      try {
+        const res = await fetch(`${ENV.PRODUCTS_API}/auth/forgot-password`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ emailOrPhone: fpIdentifier })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to send OTP.');
+        document.getElementById('fpOTPHint').textContent = `OTP sent to ${fpIdentifier}`;
+        fpGoBack(2);
+      } catch(e) { fpAlert(1, e.message); }
+    }
+    async function fpVerifyOTP() {
+      const otp = document.getElementById('fpOTP').value.trim();
+      if (otp.length !== 6) return fpAlert(2, 'Enter the 6-digit OTP.');
+      try {
+        const res = await fetch(`${ENV.PRODUCTS_API}/auth/verify-forgot-otp`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ emailOrPhone: fpIdentifier, otp })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Invalid OTP.');
+        fpResetToken = data.data.resetToken;
+        fpGoBack(3);
+      } catch(e) { fpAlert(2, e.message); }
+    }
+    async function fpResetPassword() {
+      const password = document.getElementById('fpNewPass').value;
+      if (password.length < 6) return fpAlert(3, 'Password must be at least 6 characters.');
+      try {
+        const res = await fetch(`${ENV.PRODUCTS_API}/auth/reset-password`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ token: fpResetToken, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Reset failed.');
+        fpAlert(3, 'Password reset! Redirecting to login...', true);
+        setTimeout(() => { closeFP(); }, 2000);
+      } catch(e) { fpAlert(3, e.message); }
+    }
+  </script>
 </body>
 </html>

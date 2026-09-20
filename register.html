@@ -242,6 +242,33 @@
     .reg-footer a { color: var(--forest-light); font-weight: 600; text-decoration: none; }
     .reg-footer a:hover { text-decoration: underline; }
 
+    /* ── TOGGLE TABS ── */
+    .auth-toggle {
+      display: flex;
+      background: rgba(13,40,24,0.06);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+    .auth-toggle button {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .auth-toggle button.active {
+      background: var(--white);
+      color: var(--forest);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
     /* ── RESPONSIVE ── */
 
     /* Tablet landscape */
@@ -387,18 +414,18 @@
           </div>
 
           <div class="field">
-            <label for="phone">Phone Number</label>
+            <label for="email">Email Address <span style="color:#aaa;font-weight:400;">(optional if phone given)</span></label>
             <div class="input-wrap">
-              <i class="fas fa-phone-alt"></i>
-              <input type="tel" id="phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" title="Valid Indian Phone Number" />
+              <i class="far fa-envelope"></i>
+              <input type="email" id="email" placeholder="john@example.com" />
             </div>
           </div>
 
           <div class="field">
-            <label for="email">Email Address</label>
+            <label for="phone">Phone Number <span style="color:#aaa;font-weight:400;">(optional if email given)</span></label>
             <div class="input-wrap">
-              <i class="far fa-envelope"></i>
-              <input type="email" id="email" required placeholder="john@example.com" />
+              <i class="fas fa-phone-alt"></i>
+              <input type="tel" id="phone" placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" title="Valid Indian Phone Number" />
             </div>
           </div>
 
@@ -406,7 +433,7 @@
             <label for="password">Password</label>
             <div class="input-wrap">
               <i class="fas fa-lock"></i>
-              <input type="password" id="password" required placeholder="Min 8 chars, uppercase & number" />
+              <input type="password" id="password" required placeholder="Create a password" />
             </div>
           </div>
 
@@ -425,5 +452,19 @@
 
   <script src="config.js"></script>
   <script src="auth.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      if (!email && !phone) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const alert = document.getElementById('registerAlert');
+        alert.textContent = 'Please enter either an email address or phone number.';
+        alert.className = 'alert alert-error';
+        alert.style.display = 'block';
+      }
+    }, true);
+  </script>
 </body>
 </html>
